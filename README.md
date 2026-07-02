@@ -1,2 +1,2 @@
 # MtET-69
-Submit assignments in class the mean Paradise
+ตั้ง Private Server และ สร้าง Webpage ใส่รายละเอียดข้อมูลส่วนตัวด้วย HTML Code ต้องมีภาพและ URL Link ด้วย

@@ -22,7 +22,7 @@
 
 <div class="card">
     <h3>ควบคุม Pin 1</h3>
-    <div class="pin-status" id="status">OFF</div>
+    <div class="pin-status" id="status" style="color: #e94560;">OFF</div>
     
     <div class="btn-container">
         <button class="btn btn-on" onclick="sendCmd('on')">ON</button>
@@ -37,8 +37,10 @@
         document.getElementById('status').innerText = state.toUpperCase();
         document.getElementById('status').style.color = (state === 'on') ? '#4ecca3' : '#e94560';
         
-        // ตรงนี้คือคำสั่งส่งไปที่ ESP32
-        fetch('/' + state); 
+        // ส่งคำสั่งไปยัง ESP32 ผ่าน IP Address 172.20.10.7
+        fetch('http://172.20.10.7/' + state, { mode: 'no-cors' })
+        .then(() => console.log('Command sent: ' + state))
+        .catch(err => console.error('Error sending command:', err));
     }
 </script>
 </body>

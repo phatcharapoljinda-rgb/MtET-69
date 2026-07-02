@@ -3,245 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Discord UI</title>
+    <title>ประวัติส่วนตัว - พชรพล จินดา</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        /* รีเซ็ตค่าเริ่มต้น */
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* โครงสร้างหลักแบบ Flexbox */
         body {
-            display: flex;
-            height: 100vh;
-            background-color: #36393f;
-            color: #dcddde;
-            overflow: hidden;
-        }
-
-        /* 1. แถบเซิร์ฟเวอร์ (ซ้ายสุด) */
-        .server-sidebar {
-            width: 72px;
-            background-color: #202225;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 12px;
-            gap: 10px;
-        }
-
-        .server-icon {
-            width: 48px;
-            height: 48px;
-            background-color: #36393f;
-            border-radius: 50%;
+            font-family: 'Kanit', sans-serif;
+            /* พื้นหลังไล่สีสวยๆ */
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            cursor: pointer;
-            transition: 0.2s ease;
+            min-height: 100vh;
+            color: #333;
         }
 
-        .server-icon:hover {
-            border-radius: 16px;
-            background-color: #5865F2;
-            color: white;
-        }
-
-        /* 2. แถบช่องแชท/ห้อง */
-        .channel-sidebar {
-            width: 240px;
-            background-color: #2f3136;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .channel-header {
-            height: 48px;
-            padding: 0 16px;
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-            color: white;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            cursor: pointer;
-        }
-
-        .channel-list {
-            padding: 16px 8px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .channel-item {
-            padding: 6px 8px;
-            margin-bottom: 2px;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #8e9297;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* ทำให้ห้องปัจจุบันดูเหมือนถูกเลือกอยู่ */
-        .channel-item.active {
-            background-color: #393c43;
-            color: #dcddde;
-        }
-
-        /* 3. พื้นที่แชทหลัก (ขวาสุด) */
-        .main-chat {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: #36393f;
-        }
-
-        .chat-header {
-            height: 48px;
-            padding: 0 16px;
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-            color: white;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .message {
-            display: flex;
-            gap: 16px;
-        }
-
-        /* ตั้งค่ารูปโปรไฟล์ (ตอนนี้จะเป็นสีพื้นไปก่อน) */
-        .avatar {
-            width: 40px;
-            height: 40px;
-            background-color: #5865F2; /* สีน้ำเงิน Discord ชั่วคราว */
-            border-radius: 50%;
-            object-fit: cover; /* จัดการให้รูปไม่เบี้ยวตอนเราใส่รูปจริง */
-        }
-
-        .message-content {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .username {
-            font-weight: bold;
-            color: white;
-            margin-bottom: 8px;
-        }
-
-        .timestamp {
-            font-size: 0.75rem;
-            color: #72767d;
-            margin-left: 8px;
-            font-weight: normal;
-        }
-
-        /* กล่องตกแต่งข้อมูลส่วนตัว */
+        /* กล่องการ์ดโปรไฟล์ */
         .profile-card {
-            background-color: #2f3136;
-            border-left: 4px solid #5865F2;
-            padding: 12px 16px;
-            border-radius: 4px;
-            margin-bottom: 12px;
-            line-height: 1.6;
+            background-color: #ffffff;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
         }
 
-        /* ตกแต่ง URL Link */
-        .link-text {
-            color: #00aff4;
-            text-decoration: none;
+        .profile-card:hover {
+            transform: translateY(-5px); /* เอฟเฟกต์ขยับลอยขึ้นตอนเอาเมาส์ชี้ */
         }
 
-        .link-text:hover {
-            text-decoration: underline;
+        /* รูปโปรไฟล์ */
+        .profile-pic {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
 
-        /* 4. กล่องพิมพ์ข้อความ */
-        .chat-input-container {
-            padding: 0 20px 24px 20px;
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 5px;
         }
 
-        .chat-input {
-            width: 100%;
-            background-color: #40444b;
-            border: none;
-            border-radius: 8px;
-            padding: 14px 16px;
-            color: #dcddde;
+        .subtitle {
             font-size: 1rem;
-            outline: none;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        /* กล่องข้อมูลส่วนตัว */
+        .info-box {
+            background: #f4f6f8;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* ปุ่มกด GitHub */
+        .btn-github {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #24292e;
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 50px; /* ทำให้ปุ่มโค้งมน */
+            font-weight: 500;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-github:hover {
+            background-color: #000;
+            transform: scale(1.02); /* ปุ่มขยายขึ้นนิดนึงตอนชี้ */
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
 
-    <!-- แถบเซิร์ฟเวอร์ -->
-    <div class="server-sidebar">
-        <div class="server-icon" style="background-color: #5865F2; border-radius: 16px; color: white;">🏠</div>
-    </div>
-
-    <!-- แถบช่องแชท -->
-    <div class="channel-sidebar">
-        <div class="channel-header">
-            ส่งงานอาจารย์
-        </div>
-        <div class="channel-list">
-            <div class="channel-item active"># <span>ประวัติส่วนตัว</span></div>
-            <div class="channel-item"># <span>รูปภาพ-รออัปเดต</span></div>
-        </div>
-    </div>
-
-    <!-- พื้นที่แชทหลัก -->
-    <div class="main-chat">
-        <div class="chat-header">
-            # ประวัติส่วนตัว
-        </div>
+    <div class="profile-card">
+        <img src="profile" alt="รูปโปรไฟล์" class="profile-pic">
         
-        <div class="chat-messages">
-            <div class="message">
-                
-                <!-- จุดที่ 1: ตรงนี้คือรูปโปรไฟล์ (เดี๋ยวเรามาสอนใส่รูปกันทีหลัง ตอนนี้มันจะเป็นวงกลมสีน้ำเงินไปก่อน) -->
-                <img src="profile" class="avatar" alt="รูปโปรไฟล์">
-                
-                <div class="message-content">
-                    <div class="username">พชรพล จินดา <span class="timestamp">วันนี้ เวลา 10:15 น.</span></div>
-                    
-                    <!-- ข้อมูลส่วนตัว -->
-                    <div class="profile-card">
-                        📝 <strong>ชื่อ-นามสกุล:</strong> พชรพล จินดา<br>
-                        🎂 <strong>วันเกิด:</strong> 23 สิงหาคม 2547<br>
-                        🎓 <strong>รหัสนักศึกษา:</strong> 6603014622056
-                    </div>
-                    
-                    <!-- จุดที่ 2: นี่คือ URL Link ตามที่โจทย์ต้องการ -->
-                    <div>
-                        🔗 <strong>GitHub Repository ของผม:</strong> 
-                        <a href="https://github.com/phatcharapoljinda-rgb" target="_blank" class="link-text">คลิกที่นี่เพื่อเข้าไปดู</a>
-                    </div>
-
-                </div>
+        <h1>พชรพล จินดา</h1>
+        <p class="subtitle">นักศึกษาวิศวกรรมแมคคาทรอนิกส์</p>
+        
+        <div class="info-box">
+            <div class="info-item">
+                <span class="icon">🎂</span>
+                <span><strong>วันเกิด:</strong> 23 สิงหาคม 2547</span>
+            </div>
+            <div class="info-item">
+                <span class="icon">🎓</span>
+                <span><strong>รหัสนักศึกษา:</strong> 6603014622056</span>
+            </div>
+            <div class="info-item">
+                <span class="icon">⚙️</span>
+                <span><strong>ความถนัด:</strong> ระบบ Automation, PLC, Arduino, ESP32</span>
             </div>
         </div>
 
-        <div class="chat-input-container">
-            <input type="text" class="chat-input" placeholder="ส่งข้อความไปที่ #ประวัติส่วนตัว">
-        </div>
+        <a href="https://github.com/phatcharapoljinda-rgb" target="_blank" class="btn-github">
+            <i class="fab fa-github"></i> เข้าสู่ GitHub ของฉัน
+        </a>
     </div>
 
 </body>

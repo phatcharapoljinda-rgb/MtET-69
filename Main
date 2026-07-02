@@ -217,7 +217,7 @@
             <div class="message">
                 
                 <!-- จุดที่ 1: ตรงนี้คือรูปโปรไฟล์ (เดี๋ยวเรามาสอนใส่รูปกันทีหลัง ตอนนี้มันจะเป็นวงกลมสีน้ำเงินไปก่อน) -->
-                <img src="" class="avatar" alt="">
+                <img src="profile" class="avatar" alt="รูปโปรไฟล์">
                 
                 <div class="message-content">
                     <div class="username">พชรพล จินดา <span class="timestamp">วันนี้ เวลา 10:15 น.</span></div>

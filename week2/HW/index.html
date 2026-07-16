@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ESP-NOW Control</title>
+<style>
+body{ font-family:Arial; text-align:center; background:#f2f2f2; margin:0; padding:20px; }
+h1{ color:#333; }
+.hint{ color:#777; font-size:14px; margin-bottom:20px; }
+.container{ display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
+.panel{ background:white; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.2); width:320px; padding:20px; }
+.panel h2{ margin-top:0; }
+.ipRow{ margin-bottom:15px; }
+.ipRow input{ width:150px; padding:6px; border:1px solid #ccc; border-radius:6px; }
+.statusBox{ margin:15px 0; padding:12px; background:#f7f7f7; border-radius:8px; font-size:15px; text-align:left; }
+.led{ display:inline-block; width:16px; height:16px; border-radius:50%; margin-right:8px; vertical-align:middle; background:#ccc; }
+.number{ font-size:32px; font-weight:bold; margin:10px 0; }
+.sendRow{ display:flex; gap:8px; margin-top:10px; }
+.sendRow input{ flex:1; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:16px; }
+.sendRow button{ padding:8px 16px; border:none; border-radius:6px; background:#2980b9; color:white; font-size:16px; cursor:pointer; }
+.sendRow button:active{ background:#1f618d; }
+.arrow{ font-size:28px; color:#999; align-self:center; }
+.small{ color:#888; font-size:12px; }
+</style>
+</head>
+<body>
+
+<h1>ESP-NOW: ESP32-A &harr; ESP32-B</h1>
+<div class="hint">
+  ESP32-A เป็นตัวแชร์ WiFi (ฮอตสปอต SSID <b>ESPNOW_A</b>) — เอาเครื่องที่เปิดหน้านี้ไปต่อฮอตสปอตนั้นก่อน<br>
+  IP ของ A ปกติคือ 192.168.4.1 (ค่าเริ่มต้นเติมให้แล้ว) ส่วน IP ของ B ให้ดูจาก Serial Monitor ของบอร์ด B (ปกติ 192.168.4.2)
+</div>
+
+<div class="container">
+
+  <!-- ฝั่ง ESP32-A -->
+  <div class="panel" id="panelA">
+    <h2>ESP32-A (ฮอตสปอต)</h2>
+    <div class="ipRow">
+      IP: <input type="text" id="ipA" placeholder="192.168.4.1" value="192.168.4.1">
+    </div>
+    <div class="statusBox">
+      <span class="led" id="ledA"></span><span id="reachTextA">ยังไม่เชื่อมต่อ</span><br>
+      <span class="small">ESP-NOW peer: <b id="peerTextA">-</b></span>
+    </div>
+    <div>ค่าล่าสุดที่ได้รับ (มาจาก B)</div>
+    <div class="number" id="recvA">-</div>
+    <div class="small" id="agoA"></div>
+    <div class="sendRow">
+      <input type="number" id="valueA" placeholder="ใส่เลขที่จะส่งไป B">
+      <button onclick="sendValue('A')">ส่ง &rarr;</button>
+    </div>
+  </div>
+
+  <div class="arrow">&harr;</div>
+
+  <!-- ฝั่ง ESP32-B -->
+  <div class="panel" id="panelB">
+    <h2>ESP32-B</h2>
+    <div class="ipRow">
+      IP: <input type="text" id="ipB" placeholder="192.168.4.2">
+    </div>
+    <div class="statusBox">
+      <span class="led" id="ledB"></span><span id="reachTextB">ยังไม่เชื่อมต่อ</span><br>
+      <span class="small">ESP-NOW peer: <b id="peerTextB">-</b></span>
+    </div>
+    <div>ค่าล่าสุดที่ได้รับ (มาจาก A)</div>
+    <div class="number" id="recvB">-</div>
+    <div class="small" id="agoB"></div>
+    <div class="sendRow">
+      <input type="number" id="valueB" placeholder="ใส่เลขที่จะส่งไป A">
+      <button onclick="sendValue('B')">ส่ง &rarr;</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const sides = ['A', 'B'];
+
+function getIp(side) {
+  return document.getElementById('ip' + side).value.trim();
+}
+
+// จำ IP ที่กรอกไว้ ผ่าน localStorage
+sides.forEach(side => {
+  const input = document.getElementById('ip' + side);
+  const saved = localStorage.getItem('espnow_ip_' + side);
+  if (saved) input.value = saved;
+  input.addEventListener('change', () => localStorage.setItem('espnow_ip_' + side, input.value.trim()));
+});
+
+async function pollStatus(side) {
+  const ip = getIp(side);
+  const led = document.getElementById('led' + side);
+  const reachText = document.getElementById('reachText' + side);
+  const peerText = document.getElementById('peerText' + side);
+  const recv = document.getElementById('recv' + side);
+  const ago = document.getElementById('ago' + side);
+
+  if (!ip) {
+    led.style.background = '#ccc';
+    reachText.innerText = 'ยังไม่ได้ใส่ IP';
+    return;
+  }
+
+  try {
+    const res = await fetch('http://' + ip + '/status', { cache: 'no-store' });
+    const data = await res.json();
+
+    reachText.innerText = 'เชื่อมต่อบอร์ดสำเร็จ (' + data.device + ')';
+    peerText.innerText = data.peerOnline ? 'ออนไลน์' : 'ออฟไลน์';
+    recv.innerText = data.lastReceived;
+    ago.innerText = data.lastReceivedAgoMs < 0 ? 'ยังไม่เคยได้รับข้อมูล' : ('อัปเดตล่าสุด ' + Math.round(data.lastReceivedAgoMs / 1000) + ' วินาทีที่แล้ว');
+
+    led.style.background = data.peerOnline ? '#27ae60' : '#e67e22';
+  } catch (e) {
+    led.style.background = '#e74c3c';
+    reachText.innerText = 'เชื่อมต่อบอร์ดไม่ได้';
+    peerText.innerText = '-';
+  }
+}
+
+async function sendValue(side) {
+  const ip = getIp(side);
+  const valueInput = document.getElementById('value' + side);
+  if (!ip || valueInput.value === '') return;
+
+  try {
+    await fetch('http://' + ip + '/send?value=' + encodeURIComponent(valueInput.value), { cache: 'no-store' });
+  } catch (e) {
+    console.log('ส่งไม่สำเร็จ:', e);
+  }
+}
+
+function pollAll() {
+  sides.forEach(pollStatus);
+}
+setInterval(pollAll, 1000);
+pollAll();
+</script>
+
+</body>
+</html>
